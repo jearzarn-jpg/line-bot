@@ -10,67 +10,72 @@ const config = {
 
 const client = new line.Client(config);
 
-// 🔥 สร้างคลังคำตอบหลายชุด
-const replyMessages = {
-  "คิดถึง": [
-    "คิดถึงเหมือนกันนะ 💕",
-    "คิดถึงที่สุดเลย 🥺",
-    "ก็คิดถึงทุกวันแหละ 💗"
-  ],
-  "ฝันดี": [
-    "ฝันดีนะคนเก่ง 🌙",
-    "นอนหลับฝันหวานนะ 😴",
-    "คืนนี้ขอให้ฝันถึงเรานะ 💫"
-  ],
-  "กินไร": [
-    "กินเธอได้ปะ 😳",
-    "กินข้าวยังงง 🍚",
-    "อย่าลืมกินข้าวนะ เดี๋ยวผอม 💕"
-  ],
-  "สวัสดี": [
-    "สวัสดีค้าบบบ 😆",
-    "ดีจ้าาา 💕",
-    "ไงงงงง 😎"
-  ]
-};
-
 app.post('/webhook', line.middleware(config), async (req, res) => {
-  try {
-    const event = req.body.events[0];
+  const events = req.body.events;
+
+  for (let event of events) {
 
     if (event.type === 'message' && event.message.type === 'text') {
 
-      const userText = event.message.text.trim();
+      const userText = event.message.text
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "");
 
-      // เช็คว่าคำที่พิมพ์มีในคลังไหม
-      if (replyMessages[userText]) {
+      let replyList = null;
 
-        const randomReply =
-          replyMessages[userText][
-            Math.floor(Math.random() * replyMessages[userText].length)
-          ];
+      // 🔥 คิดถึง (จับได้หลายแบบ)
+      const missYouRegex = /(คถ)|(คิดถึง+)|(คิดถุง)|(คิดทึง)/;
 
-        await client.replyMessage(event.replyToken, {
-          type: 'text',
-          text: randomReply
-        });
+      if (missYouRegex.test(userText)) {
+        replyList = [
+          "คิดถึงเหมือนกันนะ 💕",
+          "ก็คิดถึงทุกวันแหละ 🥺",
+          "คิดถึงที่สุดเลยย 💗",
+          "ไม่ต้องบอกก็รู้ว่าคิดถึง 😏"
+        ];
       }
+
+      // 🔥 ฝันดี
+      else if (/ฝันดี+/.test(userText)) {
+        replyList = [
+          "ฝันดีนะคนเก่ง 🌙",
+          "คืนนี้ฝันถึงเราด้วยนะ 😴",
+          "นอนหลับฝันหวานนะ 💫"
+        ];
+      }
+
+      // 🔥 กินอะไร
+      else if (/(กินไร)|(กินอะไร)|(กินยาง)|(กินยัง)/.test(userText)) {
+        replyList = [
+          "กินเธอได้ปะ 😳",
+          "กินข้าวยังงง 🍚",
+          "อย่าลืมกินข้าวนะ 💕"
+        ];
+      }
+
+      // 🔥 ถ้าไม่ตรงอะไรเลย
+      else {
+        replyList = [
+          "ว่าไงงง 😝",
+          "พิมพ์อะไรน้าา",
+          "พูดอีกทีได้ไหม 🥺"
+        ];
+      }
+
+      const randomReply =
+        replyList[Math.floor(Math.random() * replyList.length)];
+
+      await client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: randomReply
+      });
     }
-
-    res.sendStatus(200);
-
-  } catch (err) {
-    console.log(err);
-    res.sendStatus(500);
   }
+
+  res.sendStatus(200);
 });
 
-// กันเว็บว่าง
-app.get('/', (req, res) => {
-  res.send("Bot is running");
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });
