@@ -10,35 +10,45 @@ const config = {
 
 const client = new line.Client(config);
 
-// คำตอบสุ่ม
-const replies = [
-  "คิดถึงเหมือนกันนะ 💕",
-  "มากอดหน่อยเร็ว 🤗",
-  "คิดถึงที่สุดเลย 😊",
-  "คิดถึงทุกวันเลยนะ 💖"
-];
+// 🔥 สร้างคลังคำตอบหลายชุด
+const replyMessages = {
+  "คิดถึง": [
+    "คิดถึงเหมือนกันนะ 💕",
+    "คิดถึงที่สุดเลย 🥺",
+    "ก็คิดถึงทุกวันแหละ 💗"
+  ],
+  "ฝันดี": [
+    "ฝันดีนะคนเก่ง 🌙",
+    "นอนหลับฝันหวานนะ 😴",
+    "คืนนี้ขอให้ฝันถึงเรานะ 💫"
+  ],
+  "กินไร": [
+    "กินเธอได้ปะ 😳",
+    "กินข้าวยังงง 🍚",
+    "อย่าลืมกินข้าวนะ เดี๋ยวผอม 💕"
+  ],
+  "สวัสดี": [
+    "สวัสดีค้าบบบ 😆",
+    "ดีจ้าาา 💕",
+    "ไงงงงง 😎"
+  ]
+};
 
-// webhook
 app.post('/webhook', line.middleware(config), async (req, res) => {
   try {
-
-    // กันกรณีไม่มี event
-    if (!req.body.events || req.body.events.length === 0) {
-      return res.sendStatus(200);
-    }
-
     const event = req.body.events[0];
 
-    // เช็คว่าเป็นข้อความ text
     if (event.type === 'message' && event.message.type === 'text') {
 
-      const userText = event.message.text;
+      const userText = event.message.text.trim();
 
-      // ถ้าพิมพ์ว่า "คิดถึง"
-      if (userText === 'คิดถึง') {
+      // เช็คว่าคำที่พิมพ์มีในคลังไหม
+      if (replyMessages[userText]) {
 
         const randomReply =
-          replies[Math.floor(Math.random() * replies.length)];
+          replyMessages[userText][
+            Math.floor(Math.random() * replyMessages[userText].length)
+          ];
 
         await client.replyMessage(event.replyToken, {
           type: 'text',
@@ -55,12 +65,11 @@ app.post('/webhook', line.middleware(config), async (req, res) => {
   }
 });
 
-// หน้าเว็บเช็คว่า bot รันอยู่
+// กันเว็บว่าง
 app.get('/', (req, res) => {
-  res.send('Bot is running');
+  res.send("Bot is running");
 });
 
-// ใช้ PORT ของ Render อัตโนมัติ
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
