@@ -126,7 +126,7 @@ app.post('/webhook', line.middleware(config), async (req, res) => {
         replyList = [
           "ม่ายด้ายตั้งค่าไว้ฮือออ",
           "คิดถึง",
-          "พูดอีกทีได้ไหม 🥺",
+          "พูดอีกทีได้ไหม 🥺", 
           "มาจุ้บมา"
         ];
       }
