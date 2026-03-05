@@ -128,7 +128,7 @@ app.post('/webhook', line.middleware(config), async (req, res) => {
           "คิดถึง",
           "พูดอีกทีได้ไหม 🥺", 
           "มาจุ้บมา"
-        ];
+        ];  
       }
 
       const randomReply =
